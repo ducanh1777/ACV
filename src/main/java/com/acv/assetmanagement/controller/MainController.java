@@ -87,4 +87,37 @@ public class MainController {
         model.addAttribute("success", "Nhân viên đã được đăng ký thành công!");
         return "redirect:/admin/employees?success=registered";
     }
+
+    @GetMapping("/change-password")
+    public String changePasswordForm(Model model) {
+        model.addAttribute("title", "Đổi mật khẩu - ACV");
+        return "change-password";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(@RequestParam String oldPassword,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            HttpServletRequest request,
+            Model model) {
+        String username = request.getUserPrincipal().getName();
+        User user = userRepository.findByUsername(username).orElseThrow();
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            model.addAttribute("error", "Mật khẩu cũ không chính xác");
+            return "change-password";
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("error", "Mật khẩu mới không khớp");
+            return "change-password";
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordChanged(true);
+        userRepository.save(user);
+
+        model.addAttribute("success", "Đổi mật khẩu thành công!");
+        return "redirect:/?success=password_changed";
+    }
 }

@@ -29,6 +29,7 @@ public class DataInitializer implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode("admin123"));
             admin.setEmail("admin@acv.vn");
             admin.setRoles(new HashSet<>(Collections.singletonList(Role.ROLE_ADMIN)));
+            admin.setPasswordChanged(true);
             userRepository.save(admin);
             System.out.println("Initial admin user created: admin/admin123");
         }

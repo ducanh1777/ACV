@@ -25,7 +25,8 @@ public class EmailService {
                     "Trang web: http://localhost:8080\n" +
                     "Tên đăng nhập: " + username + "\n" +
                     "Mật khẩu tạm thời: " + initialPassword + "\n\n" +
-                    "Vui lòng đăng nhập và đổi mật khẩu ngay sau khi truy cập.\n\n" +
+                    "Lưu ý: Bạn bắt buộc phải đổi mật khẩu ngay trong lần đầu tiên đăng nhập để đảm bảo an toàn cho tài khoản.\n\n"
+                    +
                     "Trân trọng,\n" +
                     "Ban quản trị hệ thống ACV.");
 

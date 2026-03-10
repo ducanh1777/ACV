@@ -20,6 +20,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private boolean passwordChanged = false;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
@@ -28,12 +31,13 @@ public class User {
     public User() {
     }
 
-    public User(Long id, String username, String password, String email, Set<Role> roles) {
+    public User(Long id, String username, String password, String email, Set<Role> roles, boolean passwordChanged) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
         this.roles = roles;
+        this.passwordChanged = passwordChanged;
     }
 
     // Getters and Setters
@@ -75,5 +79,13 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public boolean isPasswordChanged() {
+        return passwordChanged;
+    }
+
+    public void setPasswordChanged(boolean passwordChanged) {
+        this.passwordChanged = passwordChanged;
     }
 }

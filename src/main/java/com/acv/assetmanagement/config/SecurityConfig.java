@@ -13,29 +13,32 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public static PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public static PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/login", "/forgot-password").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
-                .formLogin(
-                        form -> form
-                                .loginPage("/login")
-                                .loginProcessingUrl("/login")
-                                .defaultSuccessUrl("/", true)
-                                .permitAll())
-                .logout(
-                        logout -> logout
-                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                                .permitAll());
-        return http.build();
-    }
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http.csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests((authorize) -> authorize
+                                                .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**")
+                                                .permitAll()
+                                                .requestMatchers("/login", "/forgot-password", "/change-password")
+                                                .permitAll()
+                                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                                .anyRequest().authenticated())
+                                .formLogin(
+                                                form -> form
+                                                                .loginPage("/login")
+                                                                .loginProcessingUrl("/login")
+                                                                .defaultSuccessUrl("/", true)
+                                                                .permitAll())
+                                .logout(
+                                                logout -> logout
+                                                                .logoutRequestMatcher(
+                                                                                new AntPathRequestMatcher("/logout"))
+                                                                .permitAll());
+                return http.build();
+        }
 }
