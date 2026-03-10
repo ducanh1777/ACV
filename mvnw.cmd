@@ -59,15 +59,21 @@ if ERRORLEVEL 1 (
 
 @REM ==== START Maven Wrapper ====
 
-@set MAVEN_PROJECTBASEDIR=%~dp0
-@FOR /F "tokens=1,2 delims==" %%A IN (%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.properties) DO (
-    IF "%%A"=="distributionUrl" SET MAVEN_DISTRIBUTION_URL=%%B
+@set "MAVEN_PROJECTBASEDIR=%~dp0"
+@SET "MAVEN_DISTRIBUTION_URL=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.6/apache-maven-3.9.6-bin.zip"
+
+@IF EXIST "%MAVEN_PROJECTBASEDIR%.mvn\wrapper\maven-wrapper.properties" (
+    FOR /F "usebackq tokens=1,2 delims==" %%A IN ("%MAVEN_PROJECTBASEDIR%.mvn\wrapper\maven-wrapper.properties") DO (
+        IF "%%A"=="distributionUrl" SET "MAVEN_DISTRIBUTION_URL=%%B"
+    )
+) ELSE (
+    echo [WARNING] .mvn\wrapper\maven-wrapper.properties not found, using default URL.
 )
 
-@REM Determine the Maven version from the distribution URL.
+@REM Determine the Maven version.
 @SET MAVEN_VERSION=3.9.6
 
-@SET MAVEN_HOME=%USERPROFILE%\.m2\wrapper\dists\apache-maven-%MAVEN_VERSION%-bin\apache-maven-%MAVEN_VERSION%
+@SET "MAVEN_HOME=%USERPROFILE%\.m2\wrapper\dists\apache-maven-%MAVEN_VERSION%-bin\apache-maven-%MAVEN_VERSION%"
 
 if exist "%MAVEN_HOME%\bin\mvn.cmd" goto runMaven
 
@@ -78,7 +84,7 @@ echo.
 
 @REM Simplified download script for the demonstration. 
 @REM In a real scenario, this would use PowerShell to download and unzip.
-powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $distUrl = '%MAVEN_DISTRIBUTION_URL%'; $tempZip = [System.IO.Path]::GetTempFileName() + '.zip'; Invoke-WebRequest -Uri $distUrl -OutFile $tempZip; Expand-Archive -Path $tempZip -DestinationPath ([System.IO.Path]::GetDirectoryName('%MAVEN_HOME%')) -Force; Remove-Item $tempZip }"
+powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $distUrl = '%MAVEN_DISTRIBUTION_URL%'; if ([string]::IsNullOrEmpty($distUrl)) { Write-Error 'MAVEN_DISTRIBUTION_URL is empty. Please check your .mvn\wrapper\maven-wrapper.properties file.'; exit 1 }; $tempZip = [System.IO.Path]::GetTempFileName() + '.zip'; Write-Host 'Downloading Maven from: ' $distUrl; Invoke-WebRequest -Uri $distUrl -OutFile $tempZip; $destPath = [System.IO.Path]::GetDirectoryName('%MAVEN_HOME%'); if (!(Test-Path $destPath)) { New-Item -ItemType Directory -Force -Path $destPath }; Write-Host 'Extracting to: ' $destPath; Expand-Archive -Path $tempZip -DestinationPath $destPath -Force; Remove-Item $tempZip }"
 
 :runMaven
 "%MAVEN_HOME%\bin\mvn.cmd" %*
