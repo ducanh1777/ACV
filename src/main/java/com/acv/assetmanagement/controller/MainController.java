@@ -40,6 +40,13 @@ public class MainController {
         return "forgot-password";
     }
 
+    @GetMapping("/admin/employees")
+    public String employeeList(Model model) {
+        model.addAttribute("title", "Danh sách nhân viên - ACV Admin");
+        model.addAttribute("users", userRepository.findAll());
+        return "admin/employee-list";
+    }
+
     @GetMapping("/admin/register-employee")
     public String registerEmployeeForm(Model model) {
         model.addAttribute("title", "Đăng ký nhân viên - ACV Admin");
@@ -65,6 +72,6 @@ public class MainController {
         userRepository.save(user);
 
         model.addAttribute("success", "Nhân viên đã được đăng ký thành công!");
-        return "admin/register-employee";
+        return "redirect:/admin/employees?success=registered";
     }
 }
