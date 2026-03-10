@@ -2,13 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <div th:replace="layout :: head"></div>
+    <div th:replace="~{layout :: head}"></div>
 </head>
 
 <body>
-    <div th:replace="layout :: sidebar"></div>
+    <div th:replace="~{layout :: sidebar}"></div>
     <div class="main-wrapper">
-        <div th:replace="layout :: top-bar"></div>
+        <div th:replace="~{layout :: top-bar}"></div>
         <div class="content-body" th:fragment="content">
             <div style="background: white; padding: 40px; border-radius: 12px; border: 1px solid #eee;">
                 <h2>Chào mừng quay trở lại, <span sec:authentication="name">User</span>!</h2>
@@ -35,7 +35,7 @@
                 </div>
             </div>
         </div>
-        <div th:replace="layout :: footer"></div>
+        <div th:replace="~{layout :: footer}"></div>
     </div>
 </body>
 

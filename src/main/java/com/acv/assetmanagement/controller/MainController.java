@@ -3,10 +3,13 @@ package com.acv.assetmanagement.controller;
 import com.acv.assetmanagement.model.Role;
 import com.acv.assetmanagement.model.User;
 import com.acv.assetmanagement.repository.UserRepository;
+import com.acv.assetmanagement.service.EmailService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -18,10 +21,17 @@ public class MainController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    public MainController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public MainController(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
+    }
+
+    @ModelAttribute
+    public void addAttributes(HttpServletRequest request, Model model) {
+        model.addAttribute("currentUri", request.getRequestURI());
     }
 
     @GetMapping("/login")
@@ -70,6 +80,9 @@ public class MainController {
         user.setEmail(email);
         user.setRoles(new HashSet<>(Collections.singletonList(Role.valueOf(role))));
         userRepository.save(user);
+
+        // Send confirmation email
+        emailService.sendEmployeeCredentials(email, username, password);
 
         model.addAttribute("success", "Nhân viên đã được đăng ký thành công!");
         return "redirect:/admin/employees?success=registered";

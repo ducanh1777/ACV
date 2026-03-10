@@ -18,7 +18,7 @@
         </div>
 
         <ul class="sidebar-menu">
-            <li th:classappend="${#httpServletRequest.requestURI == '/' ? 'active' : ''}">
+            <li th:classappend="${currentUri == '/' ? 'active' : ''}">
                 <a th:href="@{/}" style="color: white; text-decoration: none;"><i class="fas fa-th-large"></i> Bảng điều
                     khiển</a>
             </li>
@@ -29,12 +29,12 @@
         <div class="sidebar-section-title"> Quản trị hệ thống</div>
         <ul class="sidebar-menu">
             <li sec:authorize="hasRole('ROLE_ADMIN')"
-                th:classappend="${#httpServletRequest.requestURI.contains('/admin/employees') ? 'active' : ''}">
+                th:classappend="${currentUri != null && currentUri.contains('/admin/employees') ? 'active' : ''}">
                 <a th:href="@{/admin/employees}" style="color: white; text-decoration: none;"><i
                         class="fas fa-users"></i> Danh sách nhân viên</a>
             </li>
             <li sec:authorize="hasRole('ROLE_ADMIN')"
-                th:classappend="${#httpServletRequest.requestURI.contains('/admin/register-employee') ? 'active' : ''}">
+                th:classappend="${currentUri != null && currentUri.contains('/admin/register-employee') ? 'active' : ''}">
                 <a th:href="@{/admin/register-employee}" style="color: white; text-decoration: none;"><i
                         class="fas fa-user-plus"></i> Đăng ký nhân viên</a>
             </li>
@@ -54,13 +54,29 @@
             </div>
             <div class="top-bar-icons">
                 <i class="far fa-bell"></i>
-                <div class="user-profile"
-                    style="background: #f8f9fa; padding: 5px 15px; border-radius: 20px; border: 1px solid #eee;">
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=6a1b9a&color=fff" alt="User">
                     <span sec:authentication="name" style="font-weight: 600; color: #6a1b9a;">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px; color: #999;"></i>
+
+                    <!-- Dropdown Menu -->
+                    <div class="user-dropdown">
+                        <div style="padding: 10px 20px; border-bottom: 1px solid #f5f5f5; margin-bottom: 5px;">
+                            <div style="font-size: 12px; color: #999;">Đang đăng nhập với:</div>
+                            <div sec:authentication="name" style="font-weight: 600; color: #333;">Admin</div>
+                        </div>
+                        <a href="#" class="user-dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ của tôi
+                        </a>
+                        <a href="#" class="user-dropdown-item">
+                            <i class="fas fa-cog"></i> Cài đặt tài khoản
+                        </a>
+                        <div class="user-dropdown-divider"></div>
+                        <a th:href="@{/logout}" class="user-dropdown-item" style="color: #ef4444;">
+                            <i class="fas fa-power-off"></i> <strong>Đăng xuất</strong>
+                        </a>
+                    </div>
                 </div>
-                <a th:href="@{/logout}" title="Đăng xuất" style="color: #ef4444; font-size: 18px; margin-left: 10px;">
-                    <i class="fas fa-power-off"></i> <span style="font-size: 14px; font-weight: 600;">Đăng xuất</span>
-                </a>
             </div>
         </div>
 
