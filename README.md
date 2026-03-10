@@ -24,10 +24,13 @@ Mở terminal tại thư mục gốc của dự án (`d:\ACV_QuanLyTaiSan`) và 
 mvn spring-boot:run
 ```
 
-### Cách 2: Sử dụng IDE (NetBeans/IntelliJ/Eclipse)
-- Mở dự án trong IDE của bạn.
-- Tìm file `src/main/java/com/acv/assetmanagement/AssetManagementApplication.java`.
-- Chuột phải vào file và chọn **Run File** (hoặc nhấn nút Play).
+### Cách 2: Sử dụng VS Code
+1. Mở thư mục `d:\ACV_QuanLyTaiSan` bằng **VS Code**.
+2. Cài đặt các Extension pack: **Extension Pack for Java** và **Spring Boot Extension Pack**.
+3. Nhấn phím **F5** hoặc vào tab **Run and Debug** và chọn **Spring Boot-AssetManagementApplication**.
+
+### Cách 3: Sử dụng IDE khác (NetBeans/IntelliJ)
+- Mở dự án và chạy file `AssetManagementApplication.java`.
 
 ## 4. Truy cập hệ thống
 Sau khi ứng dụng khởi động thành công (thông báo *Started AssetManagementApplication* trong console):

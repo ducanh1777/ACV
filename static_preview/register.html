@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng ký nhân viên - ACV Asset Management</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --acv-purple-gradient: linear-gradient(180deg, #6a1b9a 0%, #ab47bc 100%);
+            --acv-sidebar-width: 260px;
+            --acv-bg-light: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--acv-bg-light);
+            margin: 0;
+        }
+
+        .sidebar {
+            width: var(--acv-sidebar-width);
+            height: 100vh;
+            background: var(--acv-purple-gradient);
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: white;
+            padding-top: 20px;
+        }
+
+        .sidebar .logo-container {
+            padding: 0 20px 30px;
+            text-align: center;
+        }
+
+        .sidebar .logo-container img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            padding: 12px 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-menu li i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu li.active {
+            background: rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+        }
+
+        .main-wrapper {
+            margin-left: var(--acv-sidebar-width);
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .content-body {
+            padding: 50px;
+        }
+
+        .form-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            max-width: 550px;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: var(--acv-purple-gradient);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="C:/Users/ducanh/.gemini/antigravity/brain/7698eea9-52b8-4086-94e0-7103528dcb67/acv_logo_mockup_1773118938607.png"
+                alt="ACV Logo">
+        </div>
+        <ul class="sidebar-menu">
+            <li><i class="fas fa-th-large"></i> Bảng điều khiển</li>
+        </ul>
+        <div
+            style="padding: 20px 20px 10px; font-size: 11px; text-transform: uppercase; opacity: 0.7; font-weight: bold;">
+            Quản trị</div>
+        <ul class="sidebar-menu">
+            <li class="active"><i class="fas fa-user-plus"></i> Đăng ký nhân viên</li>
+        </ul>
+    </div>
+    <div class="main-wrapper">
+        <div class="top-bar">
+            <h4 style="margin-left: 20px; color: #666;">Quản trị hệ thống</h4>
+        </div>
+        <div class="content-body">
+            <div class="form-card">
+                <h2 style="color: #6a1b9a; margin-bottom: 10px;">Đăng ký nhân viên mới</h2>
+                <p style="color: #777; margin-bottom: 30px;">Cấp tài khoản cho nhân viên sau khi nhận Gmail.</p>
+                <form>
+                    <div class="form-group">
+                        <label>Tên đăng nhập</label>
+                        <input type="text" class="form-control" placeholder="Tên đăng nhập mới">
+                    </div>
+                    <div class="form-group">
+                        <label>Gmail nhân viên</label>
+                        <input type="email" class="form-control" placeholder="nhanvien@acv.vn">
+                    </div>
+                    <div class="form-group">
+                        <label>Vai trò</label>
+                        <select class="form-control">
+                            <option>Nhân viên</option>
+                            <option>Quản lý</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn-primary" style="margin-top: 10px;">Tạo tài khoản & Gửi thông
+                        tin</button>
+                </form>
+            </div>
+        </div>
+        <footer>Bản quyền © 2026 TIA. Đã đăng ký Bản quyền.</footer>
+    </div>
+</body>
+
+</html>

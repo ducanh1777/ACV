@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - ACV Asset Management</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        :root {
+            --acv-purple-gradient: linear-gradient(180deg, #6a1b9a 0%, #ab47bc 100%);
+            --acv-sidebar-width: 260px;
+            --acv-bg-light: #f8f9fa;
+            --acv-text-dark: #333;
+            --acv-white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--acv-bg-light);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .auth-wrapper {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f2f5;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-card .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-card .logo img {
+            height: 60px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: var(--acv-purple-gradient);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .auth-links {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .auth-links a {
+            color: #6a1b9a;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body class="auth-wrapper">
+    <div class="auth-card">
+        <div class="logo">
+            <img src="C:/Users/ducanh/.gemini/antigravity/brain/7698eea9-52b8-4086-94e0-7103528dcb67/acv_logo_mockup_1773118938607.png"
+                alt="ACV Logo">
+        </div>
+        <h3 style="text-align: center; margin-bottom: 20px; color: #333;">Đăng nhập hệ thống</h3>
+        <form>
+            <div class="form-group">
+                <label for="username">Tên đăng nhập</label>
+                <input type="text" id="username" class="form-control" value="admin" readonly>
+            </div>
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" class="form-control" value="admin123" readonly>
+            </div>
+            <button type="button" class="btn-primary">Đăng nhập</button>
+        </form>
+        <div class="auth-links">
+            <a href="#">Quên mật khẩu?</a>
+        </div>
+    </div>
+</body>
+
+</html>
