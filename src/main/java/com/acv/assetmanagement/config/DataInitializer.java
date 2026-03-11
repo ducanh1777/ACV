@@ -15,12 +15,16 @@ public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final com.acv.assetmanagement.repository.DeviceRepository deviceRepository;
+    private final com.acv.assetmanagement.repository.DeviceLogRepository deviceLogRepository;
     private final PasswordEncoder passwordEncoder;
 
     public DataInitializer(UserRepository userRepository,
-            com.acv.assetmanagement.repository.DeviceRepository deviceRepository, PasswordEncoder passwordEncoder) {
+            com.acv.assetmanagement.repository.DeviceRepository deviceRepository,
+            com.acv.assetmanagement.repository.DeviceLogRepository deviceLogRepository,
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.deviceRepository = deviceRepository;
+        this.deviceLogRepository = deviceLogRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -35,6 +39,41 @@ public class DataInitializer implements CommandLineRunner {
             admin.setPasswordChanged(true);
             userRepository.save(admin);
             System.out.println("Initial admin user created: admin/admin123");
+        }
+
+        // Migrate existing logs to Vietnamese
+        java.util.List<com.acv.assetmanagement.model.DeviceLog> allLogs = deviceLogRepository.findAll();
+        for (com.acv.assetmanagement.model.DeviceLog log : allLogs) {
+            boolean updated = false;
+            if ("CREATE".equals(log.getAction())) {
+                log.setAction("Tạo mới");
+                updated = true;
+            } else if ("UPDATE".equals(log.getAction())) {
+                log.setAction("Cập nhật");
+                updated = true;
+            } else if ("DELETE".equals(log.getAction())) {
+                log.setAction("Xóa");
+                updated = true;
+            } else if ("CHECKOUT".equals(log.getAction())) {
+                log.setAction("Cấp phát");
+                updated = true;
+            } else if ("CHECKIN".equals(log.getAction())) {
+                log.setAction("Nhập kho");
+                updated = true;
+            }
+
+            if ("Cập nhật thông tin thiết bị".equals(log.getDetails()) || "Update device information".equalsIgnoreCase(log.getDetails()) || "Cập nhật thông tin chi tiết thiết bị".equals(log.getDetails())) {
+                log.setDetails("(Lịch sử cũ) Cập nhật thông tin thiết bị");
+                updated = true;
+            }
+            if ("Tạo mới thiết bị".equals(log.getDetails()) || "Create new device".equalsIgnoreCase(log.getDetails()) || "Tạo mới thiết bị vào hệ thống".equals(log.getDetails())) {
+                log.setDetails("(Lịch sử cũ) Tạo mới thiết bị");
+                updated = true;
+            }
+
+            if (updated) {
+                deviceLogRepository.save(log);
+            }
         }
 
         // Populate missing fields for existing devices

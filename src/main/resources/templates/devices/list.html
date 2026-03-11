@@ -155,7 +155,7 @@
                 </div>
             </div>
 
-            <div th:if="${selectedCategory == null}" style="text-align: center; padding: 60px 0; background: #f8fafc; border: 2px border-radius: 12px; border: 2px dashed #e2e8f0;">
+            <div th:if="${selectedCategory == null}" style="text-align: center; padding: 60px 0; background: #f8fafc; border-radius: 12px; border: 2px dashed #e2e8f0;">
                 <i class="fas fa-mouse-pointer" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
                 <h3 style="color: #64748b; font-weight: 600;">Vui lòng chọn một loại thiết bị ở trên để xem danh sách chi tiết</h3>
                 <p style="color: #94a3b8; font-size: 14px;">Bạn có thể lọc theo Laptop, PC, IPhone hoặc các loại khác...</p>
@@ -198,15 +198,17 @@
                                 const item = document.createElement('div');
                                 item.className = 'timeline-item';
                                 const date = new Date(log.timestamp).toLocaleString('vi-VN');
-                                let color = '#7c4dff';
-                                if(log.action === 'CREATE') color = '#10b981';
-                                else if(log.action === 'UPDATE') color = '#3b82f6';
-                                else if(log.action === 'DELETE') color = '#ef4444';
+                                let actionColor = '#7c4dff';
+                                if (log.action === 'Tạo mới') { actionColor = '#10b981'; }
+                                else if (log.action === 'Cập nhật') { actionColor = '#3b82f6'; }
+                                else if (log.action === 'Xóa') { actionColor = '#ef4444'; }
+                                else if (log.action === 'Cấp phát') { actionColor = '#8b5cf6'; }
+                                else if (log.action === 'Nhập kho') { actionColor = '#f59e0b'; }
                                 
                                 item.innerHTML = `
-                                    <div class="timeline-dot" style="background: ${color}"></div>
+                                    <div class="timeline-dot" style="background: ${actionColor}"></div>
                                     <div class="timeline-date">${date}</div>
-                                    <div class="timeline-action" style="color: ${color}">${log.action}</div>
+                                    <div class="timeline-action" style="color: ${actionColor}">${log.action}</div>
                                     <div class="timeline-details">${log.details || ''}</div>
                                     <div class="timeline-performer">Bởi: ${log.performer}</div>
                                 `;

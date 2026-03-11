@@ -40,23 +40,78 @@ public class DeviceService {
 
     public Device saveDevice(Device device) {
         boolean isNew = (device.getId() == null);
-        String action = isNew ? "CREATE" : "UPDATE";
-        String details = isNew ? "Tạo mới thiết bị" : "Cập nhật thông tin thiết bị";
-        
+        String action = isNew ? "Tạo mới" : "Cập nhật";
+        String details;
+
+        if (isNew) {
+            details = "Tạo mới thiết bị";
+        } else {
+            Device oldDevice = deviceRepository.findById(device.getId()).orElse(null);
+            details = generateUpdateDetails(oldDevice, device);
+        }
+
         Device saved = deviceRepository.save(device);
-        
+
         deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
-            saved.getName(), saved.getAssetCode(), action, details, getCurrentUsername()
-        ));
-        
+                saved.getName(), saved.getAssetCode(), action, details, getCurrentUsername()));
+
         return saved;
+    }
+
+    private String generateUpdateDetails(Device oldDevice, Device newDevice) {
+        if (oldDevice == null) return "Cập nhật thông tin thiết bị";
+        
+        StringBuilder sb = new StringBuilder("Thay đổi: ");
+        boolean changed = false;
+
+        if (!java.util.Objects.equals(oldDevice.getName(), newDevice.getName())) {
+            sb.append(String.format("[Tên: %s -> %s] ", oldDevice.getName(), newDevice.getName()));
+            changed = true;
+        }
+        if (!java.util.Objects.equals(oldDevice.getType(), newDevice.getType())) {
+            sb.append(String.format("[Loại: %s -> %s] ", oldDevice.getType(), newDevice.getType()));
+            changed = true;
+        }
+        if (!java.util.Objects.equals(oldDevice.getSerialNumber(), newDevice.getSerialNumber())) {
+            sb.append(String.format("[Serial: %s -> %s] ", oldDevice.getSerialNumber(), newDevice.getSerialNumber()));
+            changed = true;
+        }
+        if (!java.util.Objects.equals(oldDevice.getStatus(), newDevice.getStatus())) {
+            sb.append(String.format("[Trạng thái: %s -> %s] ", oldDevice.getStatus(), newDevice.getStatus()));
+            changed = true;
+        }
+        if (!java.util.Objects.equals(oldDevice.getLocation(), newDevice.getLocation())) {
+            sb.append(String.format("[Vị trí: %s -> %s] ", oldDevice.getLocation(), newDevice.getLocation()));
+            changed = true;
+        }
+        if (!java.util.Objects.equals(oldDevice.getAssignedTo(), newDevice.getAssignedTo())) {
+            sb.append(String.format("[Người sử dụng: %s -> %s] ", oldDevice.getAssignedTo(), newDevice.getAssignedTo()));
+            changed = true;
+        }
+        if (!java.util.Objects.equals(oldDevice.getTerminal(), newDevice.getTerminal())) {
+            sb.append(String.format("[Nhà ga: %s -> %s] ", oldDevice.getTerminal(), newDevice.getTerminal()));
+            changed = true;
+        }
+        if (!java.util.Objects.equals(oldDevice.getDeviceSystem(), newDevice.getDeviceSystem())) {
+            sb.append(String.format("[Hệ thống: %s -> %s] ", oldDevice.getDeviceSystem(), newDevice.getDeviceSystem()));
+            changed = true;
+        }
+        if (!java.util.Objects.equals(oldDevice.getQuantity(), newDevice.getQuantity())) {
+            sb.append(String.format("[Số lượng: %s -> %s] ", oldDevice.getQuantity(), newDevice.getQuantity()));
+            changed = true;
+        }
+        if (!java.util.Objects.equals(oldDevice.getNotes(), newDevice.getNotes())) {
+            sb.append("[Ghi chú đã thay đổi] ");
+            changed = true;
+        }
+
+        return changed ? sb.toString().trim() : "Cập nhật thông tin thiết bị (không có thay đổi lớn)";
     }
 
     public void deleteDevice(Long id) {
         deviceRepository.findById(id).ifPresent(device -> {
             deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
-                device.getName(), device.getAssetCode(), "DELETE", "Xóa thiết bị", getCurrentUsername()
-            ));
+                    device.getName(), device.getAssetCode(), "Xóa", "Xóa thiết bị khỏi hệ thống", getCurrentUsername()));
             deviceRepository.deleteById(id);
         });
     }
@@ -75,7 +130,14 @@ public class DeviceService {
             source.setStatus(DeviceStatus.DEPLOYED);
             source.setAssignedTo(assignedTo);
             source.setLocation(location);
-            return deviceRepository.save(source);
+            Device saved = deviceRepository.save(source);
+
+            deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
+                    saved.getName(), saved.getAssetCode(), "Cấp phát",
+                    String.format("Cấp phát thiết bị cho %s tại %s", assignedTo, location),
+                    getCurrentUsername()));
+
+            return saved;
         } else {
             // Tách bản ghi
             source.setQuantity(source.getQuantity() - amount);
@@ -96,13 +158,12 @@ public class DeviceService {
             deployedDevice.setLocation(location);
 
             Device saved = deviceRepository.save(deployedDevice);
-            
+
             deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
-                saved.getName(), saved.getAssetCode(), "CHECKOUT", 
-                String.format("Cấp phát %d thiết bị cho %s tại %s", amount, assignedTo, location), 
-                getCurrentUsername()
-            ));
-            
+                    saved.getName(), saved.getAssetCode(), "Cấp phát",
+                    String.format("Cấp phát %d thiết bị cho %s tại %s", amount, assignedTo, location),
+                    getCurrentUsername()));
+
             return saved;
         }
     }
@@ -123,12 +184,11 @@ public class DeviceService {
             Device stockDevice = stockDeviceOpt.get();
             stockDevice.setQuantity(stockDevice.getQuantity() + amount);
             deviceRepository.save(stockDevice);
-            
+
             deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
-                stockDevice.getName(), stockDevice.getAssetCode(), "CHECKIN", 
-                String.format("Nhập lại %d thiết bị vào kho", amount), 
-                getCurrentUsername()
-            ));
+                    stockDevice.getName(), stockDevice.getAssetCode(), "Nhập kho",
+                    String.format("Thu hồi %d thiết bị về kho", amount),
+                    getCurrentUsername()));
         } else {
             // Nếu không tìm thấy, tạo mới record trong kho
             Device stockDevice = new Device();
@@ -138,12 +198,11 @@ public class DeviceService {
             stockDevice.setQuantity(amount);
             stockDevice.setStatus(DeviceStatus.IN_STOCK);
             Device saved = deviceRepository.save(stockDevice);
-            
+
             deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
-                saved.getName(), saved.getAssetCode(), "CHECKIN", 
-                String.format("Nhập lại %d thiết bị vào kho (tạo mới record)", amount), 
-                getCurrentUsername()
-            ));
+                    saved.getName(), saved.getAssetCode(), "Nhập kho",
+                    String.format("Thu hồi %d thiết bị về kho (tạo mới bản ghi kho)", amount),
+                    getCurrentUsername()));
         }
 
         if (amount.equals(deployed.getQuantity())) {
