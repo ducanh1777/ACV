@@ -14,10 +14,13 @@ import java.util.HashSet;
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
+    private final com.acv.assetmanagement.repository.DeviceRepository deviceRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public DataInitializer(UserRepository userRepository,
+            com.acv.assetmanagement.repository.DeviceRepository deviceRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.deviceRepository = deviceRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -32,6 +35,23 @@ public class DataInitializer implements CommandLineRunner {
             admin.setPasswordChanged(true);
             userRepository.save(admin);
             System.out.println("Initial admin user created: admin/admin123");
+        }
+
+        // Populate missing fields for existing devices
+        java.util.List<com.acv.assetmanagement.model.Device> allDevices = deviceRepository.findAll();
+        for (com.acv.assetmanagement.model.Device d : allDevices) {
+            boolean updated = false;
+            if (d.getTerminal() == null || d.getTerminal().isEmpty()) {
+                d.setTerminal("T1");
+                updated = true;
+            }
+            if (d.getDeviceSystem() == null || d.getDeviceSystem().isEmpty()) {
+                d.setDeviceSystem("FIDS");
+                updated = true;
+            }
+            if (updated) {
+                deviceRepository.save(d);
+            }
         }
     }
 }

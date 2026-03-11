@@ -11,86 +11,221 @@
         <div th:replace="~{layout :: top-bar}"></div>
 
         <div class="content-body" th:fragment="content">
-            <div
-                style="background: white; padding: 25px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                    <h2 th:text="${title}">Danh sách thiết bị</h2>
-                    <a th:href="@{/devices/add}" class="btn-primary"
-                        style="background: #6a1b9a; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-plus"></i> Thêm thiết bị
-                    </a>
+            <!-- Breadcrumbs -->
+            <div class="breadcrumb" style="margin-bottom: 8px; font-size: 13px; color: #64748b;">
+                <a th:href="@{/}" style="color: #7c4dff; text-decoration: none;">Apps</a>
+                <i class="fas fa-chevron-right" style="font-size: 10px; margin: 0 4px;"></i>
+                <a th:href="@{/devices}" style="color: #7c4dff; text-decoration: none;">Quản lý thiết bị</a>
+                <i class="fas fa-chevron-right" style="font-size: 10px; margin: 0 4px;"></i>
+                <span>Danh Sách Thiết Bị</span>
+            </div>
+
+            <!-- Summary Cards Grid (Dynamic by Category) -->
+            <div class="dashboard-grid" style="margin-top: 20px;">
+                <!-- Dynamic Category Cards -->
+                <a th:each="stat : ${typeStats}" th:href="@{/devices(category=${stat.type})}" class="summary-card"
+                    style="text-decoration: none;"
+                    th:classappend="${selectedCategory == stat.type ? 'active-filter' : ''}">
+                    <span class="card-title" th:text="${stat.type}">PC</span>
+                    <span class="card-value" th:text="${stat.total}">450</span>
+                    <div class="badge-line">
+                        <div class="mini-stat"><span class="dot active"></span> <span
+                                th:text="${stat.deployed}">400</span> Triển khai</div>
+                        <div class="mini-stat"><span class="dot" style="background: #f59e0b;"></span> <span
+                                th:text="${stat.backup}">0</span> Dự phòng</div>
+                        <div class="mini-stat"><span class="dot stock"></span> <span th:text="${stat.inStock}">50</span>
+                            Tồn kho</div>
+                    </div>
+                </a>
+            </div>
+            <div th:if="${selectedCategory != null}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <h1 style="font-size: 22px; font-weight: 700; color: #1e293b; margin: 0;" th:text="${title}">
+                            Danh Sách Thiết Bị</h1>
+                        <a th:href="@{/devices}" style="font-size: 13px; color: #7c4dff; text-decoration: none;"><i
+                                class="fas fa-times-circle"></i> Đóng lại</a>
+                    </div>
                 </div>
 
-                <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <!-- Header Section -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 15px; font-weight: 600; color: #1e293b;">Bản ghi tìm thấy</span>
+                        <span
+                            style="background: #7c4dff; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700;"
+                            th:text="${devices != null ? #lists.size(devices) : 0}">0</span>
+                        <div class="cb-group">
+                            <label class="cb-item"><input type="checkbox" checked> T1</label>
+                            <label class="cb-item"><input type="checkbox"> T2</label>
+                            <label class="cb-item"><input type="checkbox"> T3</label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="table-container">
+                    <table class="acv-table" id="deviceTable">
                         <thead>
-                            <tr
-                                style="border-bottom: 2px solid #f3f4f6; color: #6b7280; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">
-                                <th style="padding: 12px 15px;">Mã tài sản</th>
-                                <th style="padding: 12px 15px;">Tên thiết bị</th>
-                                <th style="padding: 12px 15px;">Loại</th>
-                                <th style="padding: 12px 15px;">Trạng thái</th>
-                                <th style="padding: 12px 15px;">Vị trí</th>
-                                <th style="padding: 12px 15px;">Người sử dụng</th>
-                                <th style="padding: 12px 15px; text-align: right;">Thao tác</th>
+                            <tr>
+                                <th style="width: 60px;">STT</th>
+                                <th>Tên thiết bị</th>
+                                <th>Vị trí</th>
+                                <th>Nhà Ga</th>
+                                <th>Loại thiết bị</th>
+                                <th>Hệ thống</th>
+                                <th>Trạng thái</th>
+                                <th style="text-align: right; width: 100px;">Thao tác</th>
+                            </tr>
+                            <tr class="filter-row">
+                                <td></td>
+                                <td>
+                                    <div class="filter-input-wrapper"><input type="text" class="filter-input"
+                                            placeholder="Lọc .." data-col="1"><i class="fas fa-search"></i></div>
+                                </td>
+                                <td>
+                                    <div class="filter-input-wrapper"><input type="text" class="filter-input"
+                                            placeholder="Lọc .." data-col="2"><i class="fas fa-search"></i></div>
+                                </td>
+                                <td>
+                                    <div class="filter-input-wrapper"><input type="text" class="filter-input"
+                                            placeholder="Lọc .." data-col="3"><i class="fas fa-search"></i></div>
+                                </td>
+                                <td>
+                                    <div class="filter-input-wrapper"><input type="text" class="filter-input"
+                                            placeholder="Lọc .." data-col="4"><i class="fas fa-search"></i></div>
+                                </td>
+                                <td>
+                                    <div
+                                        style="height: 32px; border: 1px solid var(--border-color); border-radius: 6px; background: white;">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="filter-input-wrapper" style="padding: 0; border: none;">
+                                        <select class="filter-input" data-col="6" style="width: 100%; height: 32px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 8px; color: #64748b; font-size: 13px; outline: none; appearance: auto;">
+                                            <option value="">Tất cả trạng thái</option>
+                                            <option value="triển khai">Triển khai</option>
+                                            <option value="dự phòng">Dự phòng</option>
+                                            <option value="tồn kho">Tồn kho</option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td></td>
                             </tr>
                         </thead>
-                        <tbody style="font-size: 15px; color: #374151;">
-                            <tr th:each="device : ${devices}"
-                                style="border-bottom: 1px solid #f3f4f6; transition: background-color 0.2s;"
-                                onmouseover="this.style.backgroundColor='#f9fafb'"
-                                onmouseout="this.style.backgroundColor='transparent'">
-                                <td style="padding: 15px; font-weight: 600; color: #6a1b9a;"
-                                    th:text="${device.assetCode}"></td>
-                                <td style="padding: 15px;" th:text="${device.name}"></td>
-                                <td style="padding: 15px;" th:text="${device.type}"></td>
-                                <td style="padding: 15px;">
-                                    <span
-                                        th:if="${device.status == T(com.acv.assetmanagement.model.DeviceStatus).DEPLOYED}"
-                                        style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500;">
+                        <tbody>
+                            <tr th:each="device, iterStat : ${devices}">
+                                <td th:text="${iterStat.count}"></td>
+                                <td style="font-weight: 500; color: #334155;" th:text="${device.name}"></td>
+                                <td th:text="${device.location}"></td>
+                                <td th:text="${device.terminal}">T1</td>
+                                <td th:text="${device.type}">PC</td>
+                                <td th:text="${device.deviceSystem}">FIDS</td>
+                                <td>
+                                    <span class="status-chip"
+                                        th:classappend="${device.status == T(com.acv.assetmanagement.model.DeviceStatus).DEPLOYED ? 'status-using' : (device.status == T(com.acv.assetmanagement.model.DeviceStatus).BACKUP ? 'status-backup' : 'status-stock')}"
+                                        th:text="${device.status == T(com.acv.assetmanagement.model.DeviceStatus).DEPLOYED ? 'Triển khai' : (device.status == T(com.acv.assetmanagement.model.DeviceStatus).BACKUP ? 'Dự phòng' : 'Tồn kho')}">
                                         Triển khai
                                     </span>
-                                    <span
-                                        th:if="${device.status == T(com.acv.assetmanagement.model.DeviceStatus).BACKUP}"
-                                        style="background: #fef9c3; color: #854d0e; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500;">
-                                        Dự phòng
-                                    </span>
-                                    <span
-                                        th:if="${device.status == T(com.acv.assetmanagement.model.DeviceStatus).IN_STOCK}"
-                                        style="background: #f3f4f6; color: #374151; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500;">
-                                        Tồn kho
-                                    </span>
                                 </td>
-                                <td style="padding: 15px;" th:text="${device.location}"></td>
-                                <td style="padding: 15px;" th:text="${device.assignedTo}"></td>
-                                <td style="padding: 15px; text-align: right;">
-                                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                                        <a th:href="@{'/devices/edit/' + ${device.id}}"
-                                            style="color: #6a1b9a; text-decoration: none;" title="Chỉnh sửa">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a th:href="@{'/devices/delete/' + ${device.id}}"
-                                            style="color: #ef4444; text-decoration: none;" title="Xóa"
-                                            onclick="return confirm('Bạn có chắc chắn muốn xóa thiết bị này?')">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                <td style="text-align: right;">
+                                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                        <a th:href="@{/devices/edit/{id}(id=${device.id})}" class="action-btn edit"
+                                            title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></a>
+                                        <a th:href="@{/devices/delete/{id}(id=${device.id})}" class="action-btn delete"
+                                            title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa?')"><i
+                                                class="fas fa-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:if="${#lists.isEmpty(devices)}">
-                                <td colspan="7" style="padding: 40px; text-align: center; color: #9ca3af;">
-                                    <i class="fas fa-box-open"
-                                        style="font-size: 48px; margin-bottom: 15px; display: block;"></i>
-                                    Không tìm thấy thiết bị nào.
+                            <tr id="emptySearchRow" style="display: none;">
+                                <td colspan="8" style="text-align: center; padding: 30px; color: #64748b; font-size: 14px;">
+                                    <i class="fas fa-box-open" style="font-size: 32px; color: #cbd5e1; margin-bottom: 12px; display: block;"></i>
+                                    Không tìm thấy thiết bị nào phù hợp
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="pagination">
+                        <div style="font-size: 13px; color: var(--text-muted);">Hiển thị &rarr; <span
+                                th:text="${devices != null ? #lists.size(devices) : 0}">0</span></div>
+                        <div class="page-controls">
+                            <a href="#" class="page-link">Trang đầu</a>
+                            <a href="#" class="page-link">Trước</a>
+                            <a href="#" class="page-link active">1</a>
+                            <a href="#" class="page-link">2</a>
+                            <a href="#" class="page-link">Sau</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div th:replace="~{layout :: footer}"></div>
+        <script>
+            // Filtering Logic
+            const table = document.getElementById('deviceTable');
+            const inputs = document.querySelectorAll('.filter-input');
+            const terminalCheckboxes = document.querySelectorAll('.cb-item input[type="checkbox"]');
+
+            function filterTable() {
+                const rows = table.querySelectorAll('tbody tr:not(:last-child)');
+                let visibleCount = 0;
+                
+                // Get selected terminals
+                const selectedTerminals = Array.from(terminalCheckboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.closest('label').textContent.trim().toLowerCase());
+
+                rows.forEach(row => {
+                    let show = true;
+
+                    // Terminal filter (Column index 3 is 'Nhà Ga')
+                    if (selectedTerminals.length > 0) {
+                        const terminalCellText = row.cells[3].innerText.trim().toLowerCase();
+                        if (!selectedTerminals.includes(terminalCellText)) {
+                            show = false;
+                        }
+                    }
+
+                    // Column filters
+                    if (show) {
+                        inputs.forEach(input => {
+                            const colIdx = input.getAttribute('data-col');
+                            const filterVal = input.value.toLowerCase();
+                            const cellText = row.cells[colIdx].innerText.trim().toLowerCase();
+                            if (filterVal && !cellText.includes(filterVal)) {
+                                show = false;
+                            }
+                        });
+                    }
+
+                    row.style.display = show ? '' : 'none';
+                    if (show) visibleCount++;
+                });
+
+                // Update count
+                const countBadge = document.querySelector('span[style*="background: #7c4dff"]');
+                if (countBadge) {
+                    countBadge.textContent = visibleCount;
+                }
+
+                // Handle empty state row
+                const emptyRow = document.getElementById('emptySearchRow');
+                if (emptyRow) {
+                    emptyRow.style.display = visibleCount === 0 ? '' : 'none';
+                }
+            }
+
+            inputs.forEach(input => input.addEventListener('input', filterTable));
+            terminalCheckboxes.forEach(cb => cb.addEventListener('change', filterTable));
+
+            // Initial filter run to set up counters and empty state correctly on load
+            filterTable();
+        </script>
+    </div>
+
+    <div th:replace="~{layout :: footer}"></div>
     </div>
 </body>
 

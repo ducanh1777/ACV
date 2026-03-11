@@ -33,6 +33,13 @@ public class Device {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @Column(nullable = false)
+    private Integer quantity = 1;
+
+    private String terminal; // Nhà Ga
+
+    private String deviceSystem; // Hệ thống
+
     // Constructors
     public Device() {
     }
@@ -124,5 +131,29 @@ public class Device {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getTerminal() {
+        return terminal;
+    }
+
+    public void setTerminal(String terminal) {
+        this.terminal = terminal;
+    }
+
+    public String getDeviceSystem() {
+        return deviceSystem;
+    }
+
+    public void setDeviceSystem(String deviceSystem) {
+        this.deviceSystem = deviceSystem;
     }
 }

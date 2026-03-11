@@ -3,10 +3,14 @@ package com.acv.assetmanagement.controller;
 import com.acv.assetmanagement.model.Device;
 import com.acv.assetmanagement.model.DeviceStatus;
 import com.acv.assetmanagement.service.DeviceService;
+import com.acv.assetmanagement.dto.DeviceTypeStats;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.*;
 
 @Controller
 @RequestMapping("/devices")
@@ -16,27 +20,73 @@ public class DeviceController {
     private DeviceService deviceService;
 
     @GetMapping
-    public String listAllDevices(Model model) {
-        model.addAttribute("devices", deviceService.getAllDevices());
-        model.addAttribute("title", "Danh sách thiết bị");
+    public String listAllDevices(@RequestParam(required = false) String category, Model model) {
+        Iterable<Device> devices = new ArrayList<>();
+        if ("all".equals(category)) {
+            devices = deviceService.getAllDevices();
+        } else if ("deployed".equals(category)) {
+            devices = deviceService.getDevicesByStatus(DeviceStatus.DEPLOYED);
+        } else if (category != null && !category.isEmpty()) {
+            devices = deviceService.getDevicesByType(category);
+        }
+
+        long totalDevices = 0;
+        long deployedDevices = 0;
+        long backupRequired = 35;
+
+        Map<String, DeviceTypeStats> typeStatsMap = new LinkedHashMap<>();
+
+        // We always fetch all devices to calculate the summary cards
+        Iterable<Device> allDevicesForStats = deviceService.getAllDevices();
+        for (Device d : allDevicesForStats) {
+            int qty = (d.getQuantity() != null ? d.getQuantity() : 1);
+            totalDevices += qty;
+
+            if (d.getStatus() == DeviceStatus.DEPLOYED) {
+                deployedDevices += qty;
+            }
+
+            String type = d.getType();
+            if (type == null || type.isEmpty())
+                type = "Khác";
+
+            DeviceTypeStats stats = typeStatsMap.computeIfAbsent(type, DeviceTypeStats::new);
+            stats.addTotal(qty);
+            if (d.getStatus() == DeviceStatus.DEPLOYED) {
+                stats.addDeployed(qty);
+            } else if (d.getStatus() == DeviceStatus.IN_STOCK) {
+                stats.addInStock(qty);
+            } else if (d.getStatus() == DeviceStatus.BACKUP) {
+                stats.addBackup(qty);
+            }
+        }
+
+        model.addAttribute("devices", devices);
+        model.addAttribute("totalDevices", totalDevices);
+        model.addAttribute("deployedDevices", deployedDevices);
+        model.addAttribute("maintenanceCount", backupRequired);
+        model.addAttribute("typeStats", typeStatsMap.values());
+        model.addAttribute("selectedCategory", category);
+
+        String titleString = "Danh sách thiết bị";
+        if ("all".equals(category))
+            titleString = "Tất cả tài sản";
+        else if (category != null)
+            titleString = "Danh sách " + category;
+
+        model.addAttribute("title", titleString);
         model.addAttribute("currentUri", "/devices");
         return "devices/list";
     }
 
     @GetMapping("/deployed")
     public String listDeployedDevices(Model model) {
-        model.addAttribute("devices", deviceService.getDevicesByStatus(DeviceStatus.DEPLOYED));
-        model.addAttribute("title", "Thiết bị triển khai");
-        model.addAttribute("currentUri", "/devices/deployed");
-        return "devices/list";
+        return listAllDevices("Đang hoạt động", model);
     }
 
     @GetMapping("/backup")
     public String listBackupDevices(Model model) {
-        model.addAttribute("devices", deviceService.getDevicesByStatus(DeviceStatus.BACKUP));
-        model.addAttribute("title", "Thiết bị dự phòng");
-        model.addAttribute("currentUri", "/devices/backup");
-        return "devices/list";
+        return listAllDevices("Dự phòng", model);
     }
 
     @GetMapping("/in-stock")
@@ -56,9 +106,20 @@ public class DeviceController {
     }
 
     @PostMapping("/save")
-    public String saveDevice(@ModelAttribute("device") Device device) {
-        deviceService.saveDevice(device);
-        return "redirect:/devices?success=device_saved";
+    public String saveDevice(@ModelAttribute("device") Device device, RedirectAttributes redirectAttributes) {
+        try {
+            deviceService.saveDevice(device);
+            return "redirect:/devices?success=device_saved";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi: " + e.getMessage());
+            // If it's a new device (no ID), redirect back to add form, otherwise to edit
+            // form
+            if (device.getId() == null) {
+                return "redirect:/devices/add";
+            } else {
+                return "redirect:/devices/edit/" + device.getId();
+            }
+        }
     }
 
     @GetMapping("/edit/{id}")
@@ -75,5 +136,29 @@ public class DeviceController {
     public String deleteDevice(@PathVariable("id") Long id) {
         deviceService.deleteDevice(id);
         return "redirect:/devices?success=device_deleted";
+    }
+
+    @PostMapping("/checkout")
+    public String checkoutDevice(@RequestParam("id") Long id,
+            @RequestParam("amount") Integer amount,
+            @RequestParam("assignedTo") String assignedTo,
+            @RequestParam("location") String location) {
+        try {
+            deviceService.checkoutDevice(id, amount, assignedTo, location);
+            return "redirect:/devices?success=checked_out";
+        } catch (Exception e) {
+            return "redirect:/devices?error=" + e.getMessage();
+        }
+    }
+
+    @PostMapping("/checkin")
+    public String checkinDevice(@RequestParam("id") Long id,
+            @RequestParam("amount") Integer amount) {
+        try {
+            deviceService.checkinDevice(id, amount);
+            return "redirect:/devices?success=checked_in";
+        } catch (Exception e) {
+            return "redirect:/devices?error=" + e.getMessage();
+        }
     }
 }
