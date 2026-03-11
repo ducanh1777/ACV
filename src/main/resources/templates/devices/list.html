@@ -3,6 +3,17 @@
 
 <head>
     <div th:replace="~{layout :: head}"></div>
+    <style>
+        .timeline-item { position: relative; margin-bottom: 24px; padding-left: 30px; }
+        .timeline-dot { position: absolute; left: 0; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: #7c4dff; border: 2px solid white; box-shadow: 0 0 0 2px #e2e8f0; }
+        .timeline-date { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+        .timeline-action { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .timeline-details { font-size: 13px; color: #475569; background: #f1f5f9; padding: 10px; border-radius: 6px; }
+        .timeline-performer { font-size: 11px; color: #64748b; margin-top: 4px; font-style: italic; }
+        
+        .action-btn.history { background: #f1f5f9; color: #7c4dff; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .action-btn.history:hover { background: #7c4dff; color: white; }
+    </style>
 </head>
 
 <body>
@@ -20,48 +31,47 @@
                 <span>Danh Sách Thiết Bị</span>
             </div>
 
-            <!-- Summary Cards Grid (Dynamic by Category) -->
+            <!-- Summary Cards Grid (Always Visible) -->
             <div class="dashboard-grid" style="margin-top: 20px;">
-                <!-- Dynamic Category Cards -->
                 <a th:each="stat : ${typeStats}" th:href="@{/devices(category=${stat.type})}" class="summary-card"
                     style="text-decoration: none;"
                     th:classappend="${selectedCategory == stat.type ? 'active-filter' : ''}">
                     <span class="card-title" th:text="${stat.type}">PC</span>
-                    <span class="card-value" th:text="${stat.total}">450</span>
+                    <span class="card-value" th:text="${stat.total}">0</span>
                     <div class="badge-line">
-                        <div class="mini-stat"><span class="dot active"></span> <span
-                                th:text="${stat.deployed}">400</span> Triển khai</div>
-                        <div class="mini-stat"><span class="dot" style="background: #f59e0b;"></span> <span
-                                th:text="${stat.backup}">0</span> Dự phòng</div>
-                        <div class="mini-stat"><span class="dot stock"></span> <span th:text="${stat.inStock}">50</span>
-                            Tồn kho</div>
+                        <div class="mini-stat"><span class="dot active"></span> <span th:text="${stat.deployed}">0</span> Triển khai</div>
+                        <div class="mini-stat"><span class="dot" style="background: #f59e0b;"></span> <span th:text="${stat.backup}">0</span> Dự phòng</div>
+                        <div class="mini-stat"><span class="dot stock"></span> <span th:text="${stat.inStock}">0</span> Tồn kho</div>
                     </div>
                 </a>
             </div>
-            <div th:if="${selectedCategory != null}">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <h1 style="font-size: 22px; font-weight: 700; color: #1e293b; margin: 0;" th:text="${title}">
-                            Danh Sách Thiết Bị</h1>
-                        <a th:href="@{/devices}" style="font-size: 13px; color: #7c4dff; text-decoration: none;"><i
-                                class="fas fa-times-circle"></i> Đóng lại</a>
+
+            <!-- Global Action Header -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin: 24px 0;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 15px; font-weight: 600; color: #1e293b;">Bản ghi tìm thấy</span>
+                    <span style="background: #7c4dff; color: white; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 700;"
+                        th:text="${devices != null ? #lists.size(devices) : 0}">0</span>
+                    <div class="cb-group" th:if="${selectedCategory != null}">
+                        <label class="cb-item"><input type="checkbox" checked> T1</label>
+                        <label class="cb-item"><input type="checkbox"> T2</label>
+                        <label class="cb-item"><input type="checkbox"> T3</label>
                     </div>
                 </div>
 
-                <!-- Header Section -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 15px; font-weight: 600; color: #1e293b;">Bản ghi tìm thấy</span>
-                        <span
-                            style="background: #7c4dff; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700;"
-                            th:text="${devices != null ? #lists.size(devices) : 0}">0</span>
-                        <div class="cb-group">
-                            <label class="cb-item"><input type="checkbox" checked> T1</label>
-                            <label class="cb-item"><input type="checkbox"> T2</label>
-                            <label class="cb-item"><input type="checkbox"> T3</label>
-                        </div>
-                    </div>
+                <a th:href="@{/devices/add}" class="btn-primary" 
+                   style="background: #7c4dff; color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(124, 77, 255, 0.3);">
+                    <i class="fas fa-plus"></i> Thêm thiết bị mới
+                </a>
+            </div>
 
+            <!-- Table Section (Conditional) -->
+            <div th:if="${selectedCategory != null}" id="tableSection">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <h1 style="font-size: 22px; font-weight: 700; color: #1e293b; margin: 0;" th:text="${title}">Danh Sách Thiết Bị</h1>
+                        <a th:href="@{/devices}" style="font-size: 13px; color: #7c4dff; text-decoration: none;"><i class="fas fa-times-circle"></i> Đóng lại</a>
+                    </div>
                 </div>
 
                 <div class="table-container">
@@ -76,39 +86,20 @@
                                 <th>Loại thiết bị</th>
                                 <th>Hệ thống</th>
                                 <th>Trạng thái</th>
-                                <th style="text-align: right; width: 100px;">Thao tác</th>
+                                <th style="text-align: right; width: 120px;">Thao tác</th>
                             </tr>
                             <tr class="filter-row">
                                 <td></td>
-                                <td>
-                                    <div class="filter-input-wrapper"><input type="text" class="filter-input"
-                                            placeholder="Lọc .." data-col="1"><i class="fas fa-search"></i></div>
-                                </td>
-                                <td>
-                                    <div class="filter-input-wrapper"><input type="text" class="filter-input"
-                                            placeholder="Lọc .." data-col="2"><i class="fas fa-search"></i></div>
-                                </td>
-                                <td>
-                                    <div class="filter-input-wrapper"><input type="text" class="filter-input"
-                                            placeholder="Lọc .." data-col="3"><i class="fas fa-search"></i></div>
-                                </td>
-                                <td>
-                                    <div class="filter-input-wrapper"><input type="text" class="filter-input"
-                                            placeholder="Lọc .." data-col="4"><i class="fas fa-search"></i></div>
-                                </td>
-                                <td>
-                                    <div class="filter-input-wrapper"><input type="text" class="filter-input"
-                                            placeholder="Lọc .." data-col="5"><i class="fas fa-search"></i></div>
-                                </td>
-                                <td>
-                                    <div
-                                        style="height: 32px; border: 1px solid var(--border-color); border-radius: 6px; background: white;">
-                                    </div>
-                                </td>
+                                <td><div class="filter-input-wrapper"><input type="text" class="filter-input" placeholder="Lọc .." data-col="1"><i class="fas fa-search"></i></div></td>
+                                <td><div class="filter-input-wrapper"><input type="text" class="filter-input" placeholder="Lọc .." data-col="2"><i class="fas fa-search"></i></div></td>
+                                <td><div class="filter-input-wrapper"><input type="text" class="filter-input" placeholder="Lọc .." data-col="3"><i class="fas fa-search"></i></div></td>
+                                <td><div class="filter-input-wrapper"><input type="text" class="filter-input" placeholder="Lọc .." data-col="4"><i class="fas fa-search"></i></div></td>
+                                <td><div class="filter-input-wrapper"><input type="text" class="filter-input" placeholder="Lọc .." data-col="5"><i class="fas fa-search"></i></div></td>
+                                <td><div style="height: 32px; border: 1px solid var(--border-color); border-radius: 6px; background: white;"></div></td>
                                 <td>
                                     <div class="filter-input-wrapper" style="padding: 0; border: none;">
-                                        <select class="filter-input" data-col="7" style="width: 100%; height: 32px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 8px; color: #64748b; font-size: 13px; outline: none; appearance: auto;">
-                                            <option value="">Tất cả trạng thái</option>
+                                        <select class="filter-input" data-col="7" style="width: 100%; height: 32px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 8px;">
+                                            <option value="">Tất cả</option>
                                             <option value="triển khai">Triển khai</option>
                                             <option value="dự phòng">Dự phòng</option>
                                             <option value="tồn kho">Tồn kho</option>
@@ -131,108 +122,131 @@
                                     <span class="status-chip"
                                         th:classappend="${device.status == T(com.acv.assetmanagement.model.DeviceStatus).DEPLOYED ? 'status-using' : (device.status == T(com.acv.assetmanagement.model.DeviceStatus).BACKUP ? 'status-backup' : 'status-stock')}"
                                         th:text="${device.status == T(com.acv.assetmanagement.model.DeviceStatus).DEPLOYED ? 'Triển khai' : (device.status == T(com.acv.assetmanagement.model.DeviceStatus).BACKUP ? 'Dự phòng' : 'Tồn kho')}">
-                                        Triển khai
                                     </span>
                                 </td>
                                 <td style="text-align: right;">
                                     <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                                        <a th:href="@{/devices/edit/{id}(id=${device.id})}" class="action-btn edit"
-                                            title="Chỉnh sửa"><i class="fas fa-pencil-alt"></i></a>
-                                        <a th:href="@{/devices/delete/{id}(id=${device.id})}" class="action-btn delete"
-                                            title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa?')"><i
-                                                class="fas fa-trash"></i></a>
+                                        <button th:onclick="showHistory([[${device.assetCode}]], [[${device.name}]])" 
+                                                class="action-btn history" title="Xem lịch sử">
+                                            <i class="fas fa-history"></i>
+                                        </button>
+                                        <a th:href="@{/devices/edit/{id}(id=${device.id})}" class="action-btn edit" title="Sửa"><i class="fas fa-pencil-alt"></i></a>
+                                        <a th:href="@{/devices/delete/{id}(id=${device.id})}" class="action-btn delete" title="Xóa" onclick="return confirm('Xóa thiết bị này?')"><i class="fas fa-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>
                             <tr id="emptySearchRow" style="display: none;">
-                                <td colspan="9" style="text-align: center; padding: 30px; color: #64748b; font-size: 14px;">
-                                    <i class="fas fa-box-open" style="font-size: 32px; color: #cbd5e1; margin-bottom: 12px; display: block;"></i>
-                                    Không tìm thấy thiết bị nào phù hợp
+                                <td colspan="9" style="text-align: center; padding: 40px; color: #94a3b8;">
+                                    <i class="fas fa-search" style="font-size: 24px; display: block; margin-bottom: 8px;"></i>
+                                    Không tìm thấy dữ liệu phù hợp
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
 
-                    <div class="pagination">
-                        <div style="font-size: 13px; color: var(--text-muted);">Hiển thị &rarr; <span
-                                th:text="${devices != null ? #lists.size(devices) : 0}">0</span></div>
-                        <div class="page-controls">
-                            <a href="#" class="page-link">Trang đầu</a>
-                            <a href="#" class="page-link">Trước</a>
-                            <a href="#" class="page-link active">1</a>
-                            <a href="#" class="page-link">2</a>
-                            <a href="#" class="page-link">Sau</a>
-                        </div>
+                <div class="pagination" style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 13px; color: #64748b;">Hiển thị <span th:text="${devices != null ? #lists.size(devices) : 0}">0</span> bản ghi</div>
+                    <div class="page-controls" style="display: flex; gap: 4px;">
+                        <button class="page-link" disabled>Trang đầu</button>
+                        <button class="page-link active">1</button>
+                        <button class="page-link" disabled>Sau</button>
                     </div>
                 </div>
             </div>
+
+            <div th:if="${selectedCategory == null}" style="text-align: center; padding: 60px 0; background: #f8fafc; border: 2px border-radius: 12px; border: 2px dashed #e2e8f0;">
+                <i class="fas fa-mouse-pointer" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
+                <h3 style="color: #64748b; font-weight: 600;">Vui lòng chọn một loại thiết bị ở trên để xem danh sách chi tiết</h3>
+                <p style="color: #94a3b8; font-size: 14px;">Bạn có thể lọc theo Laptop, PC, IPhone hoặc các loại khác...</p>
+            </div>
+
+            <!-- History Modal -->
+            <div id="historyModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); backdrop-filter: blur(4px);">
+                <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: none; width: 60%; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                    <div class="modal-header" style="padding: 20px 24px; background: #7c4dff; color: white; display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="margin: 0; font-size: 18px; font-weight: 600;"><i class="fas fa-history" style="margin-right: 10px;"></i> Lịch sử: <span id="modalAssetTitle">...</span></h2>
+                        <span class="close-modal" style="cursor: pointer; font-size: 24px;">&times;</span>
+                    </div>
+                    <div class="modal-body" style="padding: 24px; max-height: 500px; overflow-y: auto;">
+                        <div id="logContent" class="timeline" style="border-left: 2px solid #e2e8f0; margin-left: 10px;">
+                            <!-- Logs will be injected here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="padding: 16px 24px; background: #f8fafc; text-align: right; border-top: 1px solid #e2e8f0;">
+                        <button class="close-modal-btn" style="padding: 8px 20px; border-radius: 6px; border: 1px solid #e2e8f0; background: white; cursor: pointer;">Đóng</button>
+                    </div>
+                </div>
+            </div>
+
+            <script th:inline="javascript">
+                function showHistory(assetCode, deviceName) {
+                    document.getElementById('modalAssetTitle').textContent = deviceName + " (" + assetCode + ")";
+                    const logContent = document.getElementById('logContent');
+                    logContent.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+                    document.getElementById('historyModal').style.display = "block";
+                    
+                    fetch('/devices/logs/' + encodeURIComponent(assetCode))
+                        .then(res => res.json())
+                        .then(logs => {
+                            logContent.innerHTML = '';
+                            if (!logs.length) {
+                                logContent.innerHTML = '<div style="text-align: center; color: #94a3b8;">Không có lịch sử</div>';
+                                return;
+                            }
+                            logs.forEach(log => {
+                                const item = document.createElement('div');
+                                item.className = 'timeline-item';
+                                const date = new Date(log.timestamp).toLocaleString('vi-VN');
+                                let color = '#7c4dff';
+                                if(log.action === 'CREATE') color = '#10b981';
+                                else if(log.action === 'UPDATE') color = '#3b82f6';
+                                else if(log.action === 'DELETE') color = '#ef4444';
+                                
+                                item.innerHTML = `
+                                    <div class="timeline-dot" style="background: ${color}"></div>
+                                    <div class="timeline-date">${date}</div>
+                                    <div class="timeline-action" style="color: ${color}">${log.action}</div>
+                                    <div class="timeline-details">${log.details || ''}</div>
+                                    <div class="timeline-performer">Bởi: ${log.performer}</div>
+                                `;
+                                logContent.appendChild(item);
+                            });
+                        });
+                }
+
+                // Modal control
+                const modal = document.getElementById('historyModal');
+                document.querySelectorAll('.close-modal, .close-modal-btn').forEach(b => {
+                    b.onclick = () => modal.style.display = "none";
+                });
+                window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; }
+
+                // Table filtering
+                const table = document.getElementById('deviceTable');
+                if (table) {
+                    const inputs = document.querySelectorAll('.filter-input');
+                    const filterTable = () => {
+                        const rows = table.querySelectorAll('tbody tr:not(#emptySearchRow)');
+                        let visibleCount = 0;
+                        rows.forEach(row => {
+                            let show = true;
+                            inputs.forEach(input => {
+                                const val = input.value.toLowerCase();
+                                const col = input.getAttribute('data-col');
+                                if (val && !row.cells[col].innerText.toLowerCase().includes(val)) show = false;
+                            });
+                            row.style.display = show ? '' : 'none';
+                            if (show) visibleCount++;
+                        });
+                        document.getElementById('emptySearchRow').style.display = visibleCount === 0 ? '' : 'none';
+                    };
+                    inputs.forEach(i => i.addEventListener('input', filterTable));
+                }
+            </script>
         </div>
 
-        <script>
-            // Filtering Logic
-            const table = document.getElementById('deviceTable');
-            const inputs = document.querySelectorAll('.filter-input');
-            const terminalCheckboxes = document.querySelectorAll('.cb-item input[type="checkbox"]');
-
-            function filterTable() {
-                const rows = table.querySelectorAll('tbody tr:not(:last-child)');
-                let visibleCount = 0;
-                
-                // Get selected terminals
-                const selectedTerminals = Array.from(terminalCheckboxes)
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.closest('label').textContent.trim().toLowerCase());
-
-                rows.forEach(row => {
-                    let show = true;
-
-                    // Terminal filter (Column index 4 is 'Nhà Ga')
-                    if (selectedTerminals.length > 0) {
-                        const terminalCellText = row.cells[4].innerText.trim().toLowerCase();
-                        if (!selectedTerminals.includes(terminalCellText)) {
-                            show = false;
-                        }
-                    }
-
-                    // Column filters
-                    if (show) {
-                        inputs.forEach(input => {
-                            const colIdx = input.getAttribute('data-col');
-                            const filterVal = input.value.toLowerCase();
-                            const cellText = row.cells[colIdx].innerText.trim().toLowerCase();
-                            if (filterVal && !cellText.includes(filterVal)) {
-                                show = false;
-                            }
-                        });
-                    }
-
-                    row.style.display = show ? '' : 'none';
-                    if (show) visibleCount++;
-                });
-
-                // Update count
-                const countBadge = document.querySelector('span[style*="background: #7c4dff"]');
-                if (countBadge) {
-                    countBadge.textContent = visibleCount;
-                }
-
-                // Handle empty state row
-                const emptyRow = document.getElementById('emptySearchRow');
-                if (emptyRow) {
-                    emptyRow.style.display = visibleCount === 0 ? '' : 'none';
-                }
-            }
-
-            inputs.forEach(input => input.addEventListener('input', filterTable));
-            terminalCheckboxes.forEach(cb => cb.addEventListener('change', filterTable));
-
-            // Initial filter run to set up counters and empty state correctly on load
-            filterTable();
-        </script>
-    </div>
-
-    <div th:replace="~{layout :: footer}"></div>
+        <div th:replace="~{layout :: footer}"></div>
     </div>
 </body>
-
 </html>

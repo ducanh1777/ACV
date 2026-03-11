@@ -164,4 +164,10 @@ public class DeviceController {
             return "redirect:/devices?error=" + e.getMessage();
         }
     }
+
+    @GetMapping("/logs/{assetCode}")
+    @ResponseBody
+    public List<com.acv.assetmanagement.model.DeviceLog> getDeviceLogs(@PathVariable String assetCode) {
+        return deviceService.getLogsByAssetCode(assetCode);
+    }
 }

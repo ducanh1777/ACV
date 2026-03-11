@@ -15,6 +15,17 @@ public class DeviceService {
     @Autowired
     private DeviceRepository deviceRepository;
 
+    @Autowired
+    private com.acv.assetmanagement.repository.DeviceLogRepository deviceLogRepository;
+
+    private String getCurrentUsername() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            return auth.getName();
+        }
+        return "System";
+    }
+
     public List<Device> getAllDevices() {
         return deviceRepository.findAll();
     }
@@ -28,11 +39,26 @@ public class DeviceService {
     }
 
     public Device saveDevice(Device device) {
-        return deviceRepository.save(device);
+        boolean isNew = (device.getId() == null);
+        String action = isNew ? "CREATE" : "UPDATE";
+        String details = isNew ? "Tạo mới thiết bị" : "Cập nhật thông tin thiết bị";
+        
+        Device saved = deviceRepository.save(device);
+        
+        deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
+            saved.getName(), saved.getAssetCode(), action, details, getCurrentUsername()
+        ));
+        
+        return saved;
     }
 
     public void deleteDevice(Long id) {
-        deviceRepository.deleteById(id);
+        deviceRepository.findById(id).ifPresent(device -> {
+            deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
+                device.getName(), device.getAssetCode(), "DELETE", "Xóa thiết bị", getCurrentUsername()
+            ));
+            deviceRepository.deleteById(id);
+        });
     }
 
     public Device checkoutDevice(Long id, Integer amount, String assignedTo, String location) {
@@ -69,7 +95,15 @@ public class DeviceService {
             deployedDevice.setAssignedTo(assignedTo);
             deployedDevice.setLocation(location);
 
-            return deviceRepository.save(deployedDevice);
+            Device saved = deviceRepository.save(deployedDevice);
+            
+            deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
+                saved.getName(), saved.getAssetCode(), "CHECKOUT", 
+                String.format("Cấp phát %d thiết bị cho %s tại %s", amount, assignedTo, location), 
+                getCurrentUsername()
+            ));
+            
+            return saved;
         }
     }
 
@@ -89,6 +123,12 @@ public class DeviceService {
             Device stockDevice = stockDeviceOpt.get();
             stockDevice.setQuantity(stockDevice.getQuantity() + amount);
             deviceRepository.save(stockDevice);
+            
+            deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
+                stockDevice.getName(), stockDevice.getAssetCode(), "CHECKIN", 
+                String.format("Nhập lại %d thiết bị vào kho", amount), 
+                getCurrentUsername()
+            ));
         } else {
             // Nếu không tìm thấy, tạo mới record trong kho
             Device stockDevice = new Device();
@@ -97,7 +137,13 @@ public class DeviceService {
             stockDevice.setType(deployed.getType());
             stockDevice.setQuantity(amount);
             stockDevice.setStatus(DeviceStatus.IN_STOCK);
-            deviceRepository.save(stockDevice);
+            Device saved = deviceRepository.save(stockDevice);
+            
+            deviceLogRepository.save(new com.acv.assetmanagement.model.DeviceLog(
+                saved.getName(), saved.getAssetCode(), "CHECKIN", 
+                String.format("Nhập lại %d thiết bị vào kho (tạo mới record)", amount), 
+                getCurrentUsername()
+            ));
         }
 
         if (amount.equals(deployed.getQuantity())) {
@@ -107,6 +153,10 @@ public class DeviceService {
             deployed.setQuantity(deployed.getQuantity() - amount);
             return deviceRepository.save(deployed);
         }
+    }
+
+    public java.util.List<com.acv.assetmanagement.model.DeviceLog> getLogsByAssetCode(String assetCode) {
+        return deviceLogRepository.findByAssetCodeOrderByTimestampDesc(assetCode);
     }
 
     public java.util.List<Device> getDevicesByType(String type) {
