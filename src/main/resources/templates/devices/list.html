@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <div th:replace="~{layout :: head}"></div>
+</head>
+
+<body>
+    <div th:replace="~{layout :: sidebar}"></div>
+    <div class="main-wrapper">
+        <div th:replace="~{layout :: top-bar}"></div>
+
+        <div class="content-body" th:fragment="content">
+            <div
+                style="background: white; padding: 25px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2 th:text="${title}">Danh sách thiết bị</h2>
+                    <a th:href="@{/devices/add}" class="btn-primary"
+                        style="background: #6a1b9a; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-plus"></i> Thêm thiết bị
+                    </a>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr
+                                style="border-bottom: 2px solid #f3f4f6; color: #6b7280; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                <th style="padding: 12px 15px;">Mã tài sản</th>
+                                <th style="padding: 12px 15px;">Tên thiết bị</th>
+                                <th style="padding: 12px 15px;">Loại</th>
+                                <th style="padding: 12px 15px;">Trạng thái</th>
+                                <th style="padding: 12px 15px;">Vị trí</th>
+                                <th style="padding: 12px 15px;">Người sử dụng</th>
+                                <th style="padding: 12px 15px; text-align: right;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: 15px; color: #374151;">
+                            <tr th:each="device : ${devices}"
+                                style="border-bottom: 1px solid #f3f4f6; transition: background-color 0.2s;"
+                                onmouseover="this.style.backgroundColor='#f9fafb'"
+                                onmouseout="this.style.backgroundColor='transparent'">
+                                <td style="padding: 15px; font-weight: 600; color: #6a1b9a;"
+                                    th:text="${device.assetCode}"></td>
+                                <td style="padding: 15px;" th:text="${device.name}"></td>
+                                <td style="padding: 15px;" th:text="${device.type}"></td>
+                                <td style="padding: 15px;">
+                                    <span
+                                        th:if="${device.status == T(com.acv.assetmanagement.model.DeviceStatus).DEPLOYED}"
+                                        style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500;">
+                                        Triển khai
+                                    </span>
+                                    <span
+                                        th:if="${device.status == T(com.acv.assetmanagement.model.DeviceStatus).BACKUP}"
+                                        style="background: #fef9c3; color: #854d0e; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500;">
+                                        Dự phòng
+                                    </span>
+                                    <span
+                                        th:if="${device.status == T(com.acv.assetmanagement.model.DeviceStatus).IN_STOCK}"
+                                        style="background: #f3f4f6; color: #374151; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500;">
+                                        Tồn kho
+                                    </span>
+                                </td>
+                                <td style="padding: 15px;" th:text="${device.location}"></td>
+                                <td style="padding: 15px;" th:text="${device.assignedTo}"></td>
+                                <td style="padding: 15px; text-align: right;">
+                                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                        <a th:href="@{'/devices/edit/' + ${device.id}}"
+                                            style="color: #6a1b9a; text-decoration: none;" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a th:href="@{'/devices/delete/' + ${device.id}}"
+                                            style="color: #ef4444; text-decoration: none;" title="Xóa"
+                                            onclick="return confirm('Bạn có chắc chắn muốn xóa thiết bị này?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(devices)}">
+                                <td colspan="7" style="padding: 40px; text-align: center; color: #9ca3af;">
+                                    <i class="fas fa-box-open"
+                                        style="font-size: 48px; margin-bottom: 15px; display: block;"></i>
+                                    Không tìm thấy thiết bị nào.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="~{layout :: footer}"></div>
+    </div>
+</body>
+
+</html>

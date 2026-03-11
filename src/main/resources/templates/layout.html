@@ -19,11 +19,40 @@
 
         <ul class="sidebar-menu">
             <li th:classappend="${currentUri == '/' ? 'active' : ''}">
-                <a th:href="@{/}" style="color: white; text-decoration: none;"><i class="fas fa-th-large"></i> Bảng điều
-                    khiển</a>
+                <a th:href="@{/}"><i class="fas fa-th-large"></i> Bảng điều khiển</a>
             </li>
-            <li><i class="fas fa-exchange-alt"></i> Giao nhận ca điện tử</li>
-            <li><i class="fas fa-tools"></i> Quản lý thiết bị</li>
+            <li th:classappend="${currentUri != null && currentUri.startsWith('/devices') ? 'active open' : ''}">
+                <div class="menu-header" onclick="this.parentElement.classList.toggle('open')">
+                    <i class="fas fa-tools"></i>
+                    <span>Quản lý thiết bị</span>
+                    <i class="fas fa-chevron-down toggle-icon"></i>
+                </div>
+                <ul class="submenu">
+                    <li th:classappend="${currentUri == '/devices' ? 'sub-active' : ''}">
+                        <a th:href="@{/devices}">
+                            <i class="fas fa-list"></i> Tất cả thiết bị
+                        </a>
+                    </li>
+                    <li th:classappend="${currentUri == '/devices/deployed' ? 'sub-active' : ''}">
+                        <a th:href="@{/devices/deployed}">
+                            <i class="fas fa-check-circle"></i> Đang triển khai
+                        </a>
+                    </li>
+                    <li th:classappend="${currentUri == '/devices/backup' ? 'sub-active' : ''}">
+                        <a th:href="@{/devices/backup}">
+                            <i class="fas fa-sync"></i> Dự phòng
+                        </a>
+                    </li>
+                    <li th:classappend="${currentUri == '/devices/in-stock' ? 'sub-active' : ''}">
+                        <a th:href="@{/devices/in-stock}">
+                            <i class="fas fa-warehouse"></i> Tồn kho
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li th:classappend="${currentUri == '/logs' ? 'active' : ''}">
+                <a href="#"><i class="fas fa-exchange-alt"></i> Giao nhận ca điện tử</a>
+            </li>
         </ul>
 
         <div class="sidebar-section-title"> Quản trị hệ thống</div>
