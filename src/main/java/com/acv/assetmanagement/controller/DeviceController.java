@@ -99,7 +99,9 @@ public class DeviceController {
 
     @GetMapping("/add")
     public String showAddForm(Model model) {
-        model.addAttribute("device", new Device());
+        Device device = new Device();
+        device.setQuantity(1); // Mặc định là 1 và không cho sửa ở UI
+        model.addAttribute("device", device);
         model.addAttribute("statuses", DeviceStatus.values());
         model.addAttribute("title", "Thêm thiết bị mới");
         return "devices/form";
@@ -108,6 +110,7 @@ public class DeviceController {
     @PostMapping("/save")
     public String saveDevice(@ModelAttribute("device") Device device, RedirectAttributes redirectAttributes) {
         try {
+            device.setQuantity(1); // Đảm bảo số lượng luôn là 1
             deviceService.saveDevice(device);
             return "redirect:/devices?success=device_saved";
         } catch (Exception e) {

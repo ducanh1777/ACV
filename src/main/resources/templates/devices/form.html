@@ -67,12 +67,10 @@
                             <label
                                 style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569; font-size: 14px;">Số
                                 lượng <span style="color: var(--danger-text);">*</span></label>
-                            <input type="number" th:field="*{quantity}" required min="1" step="1" class="form-input"
-                                style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-main);"
-                                onfocus="this.select()">
+                            <input type="number" th:field="*{quantity}" readonly class="form-input"
+                                style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #f8fafc; color: #64748b; cursor: not-allowed;">
                             <small
-                                style="color: var(--text-muted); font-size: 11px; margin-top: 4px; display: block;">Có
-                                thể gõ số trực tiếp.</small>
+                                style="color: var(--text-muted); font-size: 11px; margin-top: 4px; display: block;">Mỗi sản phẩm được quản lý riêng biệt với một mã tài sản duy nhất.</small>
                         </div>
 
                         <div class="form-group">
